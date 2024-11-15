@@ -1,5 +1,5 @@
 const { VoiceResponse } = require("twilio").twiml;
-const { generateApiToken, getTwilioClient } = require("./utils");
+const { generateApiToken } = require("./utils");
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
@@ -7,6 +7,7 @@ const OpenAI = require("openai");
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const { convertAudioBuffer } = require("./utils");
 const { s3Client } = require("./config/awsConfig");
+const { scrapeJobs } = require("./utils/scraper");
 
 const openai = new OpenAI();
 
@@ -22,6 +23,17 @@ exports.generateToken = async (req, res) => {
     console.log(err);
     res.status(500).send(err);
   }
+};
+
+exports.handleIncomingCall = (req, res) => {
+  console.log("Incoming call from:", req.query.From, req.headers.host);
+  const twimlResponse = `<?xml version="1.0" encoding="UTF-8"?>
+                          <Response>
+                              <Connect>
+                                  <Stream url="wss://${req.headers.host}/media-stream" />
+                              </Connect>
+                          </Response>`;
+  res.type("text/xml").send(twimlResponse);
 };
 
 function askQuestion(response, questions, index) {
@@ -184,6 +196,8 @@ exports.saveRecording = async (req) => {
 };
 
 exports.getJobs = async (req, res) => {
-  const jobs = await scrapeJobs();
+  let type = req.query.type;
+
+  const jobs = await scrapeJobs(type);
   res.status(200).send(jobs);
 };
