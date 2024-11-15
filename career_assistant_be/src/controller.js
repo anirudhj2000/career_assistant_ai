@@ -4,21 +4,10 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const OpenAI = require("openai");
-const {
-  S3Client,
-  PutObjectCommand,
-  DeleteObjectCommand,
-} = require("@aws-sdk/client-s3");
-const { response } = require("express");
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const { convertAudioBuffer } = require("./utils");
+const { s3Client } = require("./config/awsConfig");
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION_1,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_1,
-    secretAccessKey: process.env.AWS_SECRET_KEY_1,
-  },
-});
 const openai = new OpenAI();
 
 const SYSTEM_MESSAGE =
@@ -192,4 +181,9 @@ exports.saveRecording = async (req) => {
   } catch (err) {
     console.log("Error downloading recording:", err.message);
   }
+};
+
+exports.getJobs = async (req, res) => {
+  const jobs = await scrapeJobs();
+  res.status(200).send(jobs);
 };
