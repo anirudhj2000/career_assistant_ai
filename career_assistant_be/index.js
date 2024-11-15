@@ -1,22 +1,31 @@
-const express = require("express");
 const dotenv = require("dotenv");
-const cors = require("cors");
-const app = express();
+const http = require("http");
+const { WebSocketServer } = require("ws");
+const app = require("./app");
+const setupWebSocket = require("./src/config/websocketConfig");
 
 dotenv.config();
 
-var corsOptions = {
-  origin: ["https://localhost:3001"],
-  credentials: true,
-};
+const PORT = process.env.PORT || 5050;
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Create HTTP server
+const server = http.createServer(app);
 
-app.use("/api", require("./src/routes"));
+// WebSocket
+const wss = new WebSocketServer({ noServer: true });
+server.on("upgrade", (request, socket, head) => {
+  if (request.url === "/media-stream") {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit("connection", ws, request);
+    });
+  } else {
+    socket.destroy();
+  }
+});
 
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+setupWebSocket(wss);
+
+// Start the server
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
