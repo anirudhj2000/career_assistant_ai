@@ -3,6 +3,26 @@ const { generateApiToken, getTwilioClient } = require("./utils");
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
+const OpenAI = require("openai");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
+const { response } = require("express");
+const { convertAudioBuffer } = require("./utils");
+
+const s3Client = new S3Client({
+  region: process.env.AWS_REGION_1,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_1,
+    secretAccessKey: process.env.AWS_SECRET_KEY_1,
+  },
+});
+const openai = new OpenAI();
+
+const SYSTEM_MESSAGE =
+  "Hi , you are AI assistant built for asking questions to build resume for people and will start conversation in hindi, you will ask the user to choose between hindi, telugu and marathi and then converse in that language only , you are start with asking 5 questions for building a resume and then readout the resume to them after asking those questions";
 
 exports.generateToken = async (req, res) => {
   try {
@@ -29,30 +49,85 @@ function askQuestion(response, questions, index) {
   }
 }
 
+const firstFunction = (response) => {
+  return new Promise(async (resolve, reject) => {
+    const textResponse = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "assistant",
+          content: SYSTEM_MESSAGE,
+        },
+      ],
+    });
+
+    console.log("textResponse", JSON.stringify(textResponse));
+
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: "alloy",
+      input: textResponse.choices[0].message.content,
+    });
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+
+    console.log("buffer 1", buffer);
+
+    const audioBuffer = await convertAudioBuffer(buffer);
+
+    console.log("buffer 2", audioBuffer);
+
+    let key = Date.now() + ".wav";
+
+    const uploadParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `${key}`,
+      Body: audioBuffer,
+    };
+
+    console.log("uploadParams", uploadParams);
+    await s3Client.send(new PutObjectCommand(uploadParams));
+
+    console.log("response", `${process.env.AWS_CLOUDFRONT_URL}/${key}`);
+
+    const gather = response.gather({
+      input: "speech",
+      action: `${process.env.API_URL}/api/handle-response`,
+      method: "POST",
+    });
+
+    gather.play(`https://d27htzb2hgebok.cloudfront.net/1731605266765.wav`);
+
+    resolve();
+  });
+};
+
 exports.voiceResponse = async (req, res) => {
   console.log("req", req.query);
 
   const voiceResponse = new VoiceResponse();
-  let questionIndex = req.query.question ? parseInt(req.query.question, 10) : 0;
 
-  if (questionIndex > 0) {
-    await this.saveRecording(req); // Remove `res` parameter
-  }
+  // if (questionIndex > 0) {
+  //   await this.saveRecording(req);
+  // } else {
+  //   firstFunction(voiceResponse);
+  // }
 
-  const questions = [
-    "What is your name?",
-    "How old are you?",
-    "What is your favorite color?",
-    "What city do you live in?",
-    "What is your hobby?",
-  ];
+  await firstFunction(voiceResponse);
 
-  if (questionIndex < questions.length) {
-    askQuestion(voiceResponse, questions, questionIndex);
-  } else {
-    voiceResponse.say("Thank you for your responses. Goodbye!");
-    voiceResponse.hangup();
-  }
+  // const questions = [
+  //   "What is your name?",
+  //   "How old are you?",
+  //   "What is your favorite color?",
+  //   "What city do you live in?",
+  //   "What is your hobby?",
+  // ];
+
+  // if (questionIndex < questions.length) {
+  //   askQuestion(voiceResponse, questions, questionIndex);
+  // } else {
+  //   voiceResponse.say("Thank you for your responses. Goodbye!");
+  //   voiceResponse.hangup();
+  // }
 
   res.setHeader("Content-Type", "text/xml");
   res.status(200).send(voiceResponse.toString());
@@ -83,22 +158,37 @@ exports.saveRecording = async (req) => {
   try {
     const filePath = path.join(__dirname, `recordings/${recordingSid}.mp3`);
 
-    const response = await axios.get(recordingUrl, {
-      responseType: "stream",
-      headers: { Accept: "*/*" },
+    // const response = await axios.get(recordingUrl, {
+    //   responseType: "stream",
+    //   headers: { Accept: "*/*" },
+    //   maxBodyLength: Infinity,
+    // });
+
+    let config = {
+      method: "get",
       maxBodyLength: Infinity,
-    });
+      url: recordingUrl,
+      headers: {},
+      responseType: "stream",
+    };
 
-    const writer = fs.createWriteStream(filePath);
-    response.data.pipe(writer);
+    axios
+      .request(config)
+      .then((response) => {
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
 
-    writer.on("finish", () => {
-      console.log(`Recording saved as ${filePath}`);
-    });
+        writer.on("finish", () => {
+          console.log(`Recording saved as ${filePath}`);
+        });
 
-    writer.on("error", (err) => {
-      console.error("Error saving recording:", err);
-    });
+        writer.on("error", (err) => {
+          console.error("Error saving recording:", err);
+        });
+      })
+      .catch((error) => {
+        console.log("err", error);
+      });
   } catch (err) {
     console.log("Error downloading recording:", err.message);
   }
