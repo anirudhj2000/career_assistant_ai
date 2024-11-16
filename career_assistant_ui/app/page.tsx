@@ -17,7 +17,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<any>(null);
-
+  const [websocketMessage, setWebsocketMessage] = useState<Array<string>>([]);
+  const ws = useRef<WebSocket | null>(null);
 
 
   // Fetch Token on Component Mount
@@ -43,6 +44,38 @@ export default function Home() {
     };
 
     initializeDevice();
+  }, []);
+
+  useEffect(() => {
+    // Replace 'ws://localhost:5050' with your actual WebSocket server URL
+    ws.current = new WebSocket(`wss://18e2-110-235-236-187.ngrok-free.app/ui`);
+
+    ws.current.onopen = () => {
+      console.log('WebSocket connection established');
+    };
+
+    ws.current.onmessage = (event) => {
+      console.log('Received message from server:',);
+      console.log("data response", event);
+
+
+      setWebsocketMessage([JSON.stringify(event), ...websocketMessage]);
+    };
+
+    ws.current.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    // Cleanup on component unmount
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -146,6 +179,16 @@ export default function Home() {
           </>
         )}
       </div>
+
+      {
+        websocketMessage.length > 0 ?
+          <div className='flex flex-col items-center bg-gray-100 p-8 rounded-xl w-4/12 shadow-lg mt-4'>
+            <h2 className='text-xl text-black font-bold'>Websocket Messages</h2>
+            {websocketMessage.map((message, index) => (
+              <p key={index} className='text-gray-700 mt-4 w-9/12 text-center'>{message}</p>
+            ))}
+          </div> : null
+      }
     </div>
   );
 }
