@@ -2,7 +2,8 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { WebSocketServer } = require("ws");
 const app = require("./app");
-const setupWebSocket = require("./src/config/websocketConfig");
+const setupWebSocket = require("./src/config/twilioWebSocket");
+const setupUIWebSocket = require("./src/config/uiWebSocket");
 
 dotenv.config();
 
@@ -12,18 +13,25 @@ const PORT = process.env.PORT || 5050;
 const server = http.createServer(app);
 
 // WebSocket
-const wss = new WebSocketServer({ noServer: true });
+const wsCall = new WebSocketServer({ noServer: true });
+const wsUI = new WebSocketServer({ noServer: true });
+const wsUIClients = [];
 server.on("upgrade", (request, socket, head) => {
   if (request.url === "/media-stream") {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      wss.emit("connection", ws, request);
+    wsCall.handleUpgrade(request, socket, head, (ws) => {
+      wsCall.emit("connection", ws, request);
+    });
+  } else if (request.url === "/ui") {
+    wsUI.handleUpgrade(request, socket, head, (ws) => {
+      wsUI.emit("connection", ws, request);
     });
   } else {
     socket.destroy();
   }
 });
 
-setupWebSocket(wss);
+setupWebSocket(wsCall, wsUIClients);
+setupUIWebSocket(wsUI, wsUIClients);
 
 // Start the server
 server.listen(PORT, () => {
