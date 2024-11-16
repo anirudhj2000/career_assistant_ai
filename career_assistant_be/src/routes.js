@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const controller = require("./controller");
+const controller = require("./controller/controller");
 
 router.post("/token", controller.generateToken);
 router.get("/voice-response", controller.voiceResponse);
