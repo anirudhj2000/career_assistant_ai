@@ -5,7 +5,7 @@ function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
-exports.scrapeJobs = async () => {
+exports.scrapeJobs = async (type) => {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   const jobs = [];
@@ -35,10 +35,9 @@ exports.scrapeJobs = async () => {
     );
 
     // Navigate to jobs page
-    await page.goto(
-      "https://www.linkedin.com/jobs/search/?keywords=Software%20Engineer",
-      { waitUntil: "domcontentloaded" }
-    );
+    await page.goto(`https://www.linkedin.com/jobs/search/?keywords=${type}`, {
+      waitUntil: "domcontentloaded",
+    });
     console.log("Navigated to jobs page");
     await page.waitForSelector(".job-card-container", {
       visible: true,
