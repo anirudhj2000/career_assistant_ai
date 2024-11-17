@@ -5,6 +5,10 @@ const {
 const { generateResumePdf } = require("../controller/controller");
 const { generatePDF } = require("./generatePdf");
 const { sendEmail } = require("../utils/sendEmail");
+const {
+  updateUserData,
+  getUserData,
+} = require("../controller/user.controller");
 
 const actions = [
   "initial_conversation",
@@ -37,6 +41,15 @@ exports.manageActions = async (transcript) => {
           const pdf = await generatePDF(resume);
           console.log("PDF: ", pdf);
           await sendEmail(resume.personalDetails.email, pdf);
+
+          getUserData(isWsCallReady.user).then((user) => {
+            let userData = { ...user, type: userTypes.EXISTING_USER };
+            updateUserData(
+              isWsCallReady.user,
+              userData,
+              userTypes.EXISTING_USER
+            );
+          });
         } else {
           throw new Error("Email not found in the resume");
         }
@@ -71,6 +84,7 @@ exports.manageActions = async (transcript) => {
   }
 };
 
-exports.manageJobData = async (transcript) => {
-  //   const conversationState = await getCurrent
+exports.updateUserDataAction = async (transcript, type) => {
+  const resumeObject = await generateResumeObject(data);
+  await updateUserData(isWsCallReady.user, resumeObject, type);
 };

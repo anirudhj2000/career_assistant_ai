@@ -9,7 +9,10 @@ const { getUserData, updateUserData } = require("./user.controller");
 const { wsEvents, isWsCallReady } = require("../utils/readyEvent");
 const { SYSTEM_MESSAGE_NEW_USER } = require("../utils/consts");
 const { generateInitialPrompt } = require("../helpers/generateInitialPrompt");
-const { manageActions } = require("../helpers/manageActions");
+const {
+  manageActions,
+  updateUserDataAction,
+} = require("../helpers/manageActions");
 const {
   generateJobsListings,
   generateJobSummary,
@@ -249,8 +252,8 @@ module.exports = (wss, ws2Clients) => {
               ?.transcript;
 
           console.log("Session Transcript", session.transcript);
-          updateUserData(
-            isWsCallReady.user,
+
+          updateUserDataAction(
             session.transcript,
             userTypes.EXISTING_USER_NO_RESUME
           );

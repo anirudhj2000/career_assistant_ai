@@ -67,7 +67,7 @@ exports.updateUserData = async (id, data, type) => {
   try {
     console.log("Data in updateUserData: ", data);
 
-    const resumeObject = await generateResumeObject(data);
+    const resumeObject = data;
 
     console.log("Resume Object: ", resumeObject, resumeObject.resume);
 
