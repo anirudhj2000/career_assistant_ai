@@ -55,71 +55,95 @@
   <body>
     <div class="container">
       <!-- Personal Details -->
+      <% if (personalDetails) { %>
       <div class="header">
+        <% if (personalDetails.fullName) { %>
         <h1><%= personalDetails.fullName %></h1>
+        <% } %> <% if (personalDetails.email || personalDetails.phoneNumber) {
+        %>
         <p>
-          Email: <%= personalDetails.email %> | Phone: <%=
-          personalDetails.phoneNumber %>
+          <% if (personalDetails.email) { %>Email: <%= personalDetails.email %>
+          <% } %> <% if (personalDetails.phoneNumber) { %> | Phone: <%=
+          personalDetails.phoneNumber %> <% } %>
         </p>
+        <% } %> <% if (personalDetails.address) { %>
         <p>Address: <%= personalDetails.address %></p>
+        <% } %> <% if (personalDetails.linkedIn || personalDetails.github) { %>
         <p>
-          LinkedIn:
+          <% if (personalDetails.linkedIn) { %> LinkedIn:
           <a href="<%= personalDetails.linkedIn %>"
             ><%= personalDetails.linkedIn %></a
           >
-          | GitHub:
+          <% } %> <% if (personalDetails.github) { %> | GitHub:
           <a href="<%= personalDetails.github %>"
             ><%= personalDetails.github %></a
           >
+          <% } %>
         </p>
+        <% } %> <% if (personalDetails.portfolio) { %>
         <p>
           Portfolio:
           <a href="<%= personalDetails.portfolio %>"
             ><%= personalDetails.portfolio %></a
           >
         </p>
+        <% } %>
       </div>
+      <% } %>
 
       <!-- Professional Summary -->
+      <% if (summary) { %>
       <div class="section">
         <h2>Professional Summary</h2>
         <p><%= summary %></p>
       </div>
+      <% } %>
 
       <!-- Education -->
+      <% if (education && education.length > 0) { %>
       <div class="section">
         <h2>Education</h2>
         <ul class="list">
           <% education.forEach(function(item) { %>
           <li>
-            <strong><%= item.degree %></strong><br />
-            <%= item.institution %>, <%= item.location %><br />
-            Graduation Year: <%= item.graduationYear %> | GPA: <%= item.GPA %>
+            <% if (item.degree) { %><strong><%= item.degree %></strong><br /><%
+            } %> <% if (item.institution) { %><%= item.institution %>, <% } %>
+            <% if (item.location) { %><%= item.location %><br /><% } %> <% if
+            (item.graduationYear || item.GPA) { %> Graduation Year: <%=
+            item.graduationYear %> | GPA: <%= item.GPA %> <% } %>
           </li>
           <% }) %>
         </ul>
       </div>
+      <% } %>
 
       <!-- Work Experience -->
+      <% if (workExperience && workExperience.length > 0) { %>
       <div class="section">
         <h2>Work Experience</h2>
         <ul class="list">
           <% workExperience.forEach(function(item) { %>
           <li>
-            <strong><%= item.jobTitle %></strong> | <%= item.companyName %>, <%=
-            item.location %> <br />
-            <%= item.startDate %> - <%= item.endDate %>
+            <% if (item.jobTitle) { %><strong><%= item.jobTitle %></strong> <% }
+            %> <% if (item.companyName || item.location) { %> | <%=
+            item.companyName %>, <%= item.location %> <% } %><br />
+            <% if (item.startDate || item.endDate) { %> <%= item.startDate %> -
+            <%= item.endDate %> <% } %> <% if (item.responsibilities &&
+            item.responsibilities.length > 0) { %>
             <ul>
               <% item.responsibilities.forEach(function(resp) { %>
               <li><%= resp %></li>
               <% }) %>
             </ul>
+            <% } %>
           </li>
           <% }) %>
         </ul>
       </div>
+      <% } %>
 
       <!-- Skills -->
+      <% if (skills && skills.length > 0) { %>
       <div class="section">
         <h2>Skills</h2>
         <ul class="list">
@@ -128,8 +152,10 @@
           <% }) %>
         </ul>
       </div>
+      <% } %>
 
       <!-- Certifications -->
+      <% if (certifications && certifications.length > 0) { %>
       <div class="section">
         <h2>Certifications</h2>
         <ul class="list">
@@ -140,20 +166,28 @@
           <% }) %>
         </ul>
       </div>
+      <% } %>
 
       <!-- Projects -->
+      <% if (projects && projects.length > 0) { %>
       <div class="section">
         <h2>Projects</h2>
         <% projects.forEach(function(project) { %>
         <div class="project-item">
-          <strong><%= project.projectName %></strong><br />
-          <%= project.description %><br />
+          <% if (project.projectName) { %><strong
+            ><%= project.projectName %></strong
+          ><br /><% } %> <% if (project.description) { %><%= project.description
+          %><br /><% } %> <% if (project.technologies &&
+          project.technologies.length > 0) { %>
           <strong>Technologies:</strong> <%= project.technologies.join(", ")
           %><br />
-          <a href="<%= project.link %>"><%= project.link %></a>
+          <% } %> <% if (project.link) { %><a href="<%= project.link %>"
+            ><%= project.link %></a
+          ><% } %>
         </div>
         <% }) %>
       </div>
+      <% } %>
     </div>
   </body>
 </html>

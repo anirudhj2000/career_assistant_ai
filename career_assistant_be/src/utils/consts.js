@@ -22,9 +22,10 @@ exports.SYSTEM_MESSAGE_NEW_USER = `
     - Skills
     - Certifications and Awards
     - Additional Information
-  3. Resume Confirmation (verify points and gather email id)
-  4. Job Search Activation
-  5. Session Termination**
+  3. Resume Confirmation 
+  4. Ask User if User wants to get a mail for the resume
+  5. Job Search Activation
+  6. Session Termination
 
 
   Guidelines:
@@ -91,10 +92,11 @@ exports.SYSTEM_MESSAGE_EXISTING_USER_NO_RESUME = `
     - Certifications and Awards
     - Additional Information
 
-  3. Resume Confirmation (verify points and gather email id)
-  4. Job Search Activation
-  5. Session
-  6. Termination
+  3. Resume Confirmation 
+  4. Ask User if User wants to get a mail for the resume
+  5. Job Search Activation
+  6. Session
+  7. Termination
 
 
 

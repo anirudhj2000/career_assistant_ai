@@ -6,7 +6,7 @@ function delay(time) {
 }
 
 exports.scrapeJobs = async (type) => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   const jobs = [];
   await page.setViewport({ width: 1200, height: 800 });
@@ -34,10 +34,15 @@ exports.scrapeJobs = async (type) => {
       process.env.LINKEDIN_PASS
     );
 
+    let urlEncoded = encodeURIComponent(type);
+
     // Navigate to jobs page
-    await page.goto(`https://www.linkedin.com/jobs/search/?keywords=${type}`, {
-      waitUntil: "domcontentloaded",
-    });
+    await page.goto(
+      `https://www.linkedin.com/jobs/search/?keywords=${urlEncoded}`,
+      {
+        waitUntil: "domcontentloaded",
+      }
+    );
     console.log("Navigated to jobs page");
     await page.waitForSelector(".job-card-container", {
       visible: true,
