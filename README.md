@@ -27,7 +27,7 @@ Career Assistant AI is an intelligent platform designed to help users create res
 
 ---
 
-## Features
+## Features [![Link](https://docs.google.com/document/d/1Z4fs2A63pehhTRC9giIPhy68bQzwSbkB/edit?usp=sharing&ouid=116269735427886173755&rtpof=true&sd=true))](Document)
 
 1. **AI Resume Building**:
 
@@ -39,12 +39,10 @@ Career Assistant AI is an intelligent platform designed to help users create res
    - Integrates Twilio for live interactions.
    - Activates job searches and sends email notifications.
 
-3. **Monorepo Architecture**:
+3. **Search Jobs**:
 
-   - Simplifies project management and code sharing across frontend and backend.
-
-4. **Local Development with ngrok**:
-   - Easily test Twilio webhooks locally.
+   - Scrapes latest openings from Linkedin based on your profile
+   - Provides data narrates lisitings and lets you visit listings
 
 ---
 
