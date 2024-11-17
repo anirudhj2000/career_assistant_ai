@@ -4,6 +4,7 @@ const {
 } = require("./manageConversation");
 const { generateResumePdf } = require("../controller/controller");
 const { generatePDF } = require("./generatePdf");
+const { sendEmail } = require("../utils/sendEmail");
 
 const actions = [
   "initial_conversation",
@@ -21,17 +22,28 @@ exports.manageActions = async (transcript) => {
   const conversationState = await getCurrentConversationState(transcript);
   let stage = conversationState.stage;
 
-  if (!actions.includes(stage)) {
-    if (stage === "email_id_confirmation") {
+  console.log(
+    "Current stage: ",
+    conversationState,
+    stage == "job_search_activation" || stage == "job_search_execution"
+  );
+
+  if (actions.includes(stage)) {
+    if (stage == "email_id_confirmation") {
       try {
         const resume = await generateResumeObject(transcript);
-        const pdf = await generatePDF(resume);
-        await sendEmail("", pdf);
+
+        if (resume.personalDetails.email) {
+          const pdf = await generatePDF(resume);
+          console.log("PDF: ", pdf);
+          await sendEmail(resume.personalDetails.email, pdf);
+        } else {
+          throw new Error("Email not found in the resume");
+        }
 
         return {
-          stage: "email_id_confirmation",
-          description:
-            "The user's email address is confirmed, and the resume has been sent via email.",
+          ...conversationState,
+          action: "send_email",
         };
       } catch (error) {
         console.error("Error during email_id_confirmation stage:", error);
@@ -48,19 +60,17 @@ exports.manageActions = async (transcript) => {
       stage == "job_search_execution"
     ) {
       return {
-        stage: "job_search_activation",
-        description: "The job search process has been activated.",
+        ...conversationState,
+        action: "get_jobs",
       };
     } else {
-      return { action: NO_ACTION, stage: stage };
+      return { action: NO_ACTION, ...conversationState };
     }
   } else {
-    return { action: NO_ACTION, stage: stage };
+    return { action: NO_ACTION, ...conversationState };
   }
 };
 
-const sendEmail = async (email, resume) => {
-  // Send email with resume
-  console.log("Sending email to: ", email);
-  console.log("Resume: ", resume);
+exports.manageJobData = async (transcript) => {
+  //   const conversationState = await getCurrent
 };

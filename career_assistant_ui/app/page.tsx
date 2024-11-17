@@ -91,7 +91,10 @@ export default function Home() {
       console.log("data response", event);
 
 
-      setWebsocketMessage([JSON.stringify(event), ...websocketMessage]);
+      let data = JSON.parse(event.data);
+
+      setWebsocketMessage((prev) => [data.message, ...prev]);
+
     };
 
     ws.current.onclose = () => {
@@ -178,7 +181,7 @@ export default function Home() {
 
   return (
     <div className='w-screen h-screen flex flex-col items-center justify-center bg-white/80'>
-      <div className='flex flex-col items-center bg-gray-100 p-8 rounded-xl w-4/12 shadow-lg'>
+      <div className='flex flex-col items-center bg-gray-100 p-8 rounded-xl w-4/12 mt-[10vh] shadow-lg'>
         {loading ? (
           <p className='text-gray-700 mb-4'>Loading...</p>
         ) : (
@@ -214,10 +217,18 @@ export default function Home() {
 
       {
         websocketMessage.length > 0 ?
-          <div className='flex flex-col items-center bg-gray-100 p-8 rounded-xl w-4/12 shadow-lg mt-4'>
+          <div className='flex flex-col items-center bg-gray-100 p-4 max-h-[40vh] overflow-y-auto rounded-xl w-8/12 shadow-lg mt-[5vh]'>
             <h2 className='text-xl text-black font-bold'>Websocket Messages</h2>
-            {websocketMessage.map((message, index) => (
-              <p key={index} className='text-gray-700 mt-4 w-9/12 text-center'>{message}</p>
+            {websocketMessage.map((message: any, index) => (
+              <div className='flex flex-col items-start gap-x-4 p-2 w-full border-[1px] rounded-lg mb-4'>
+                <div className=' w-full flex flex-row justify-between items-center'>
+                  <p className='text-black'>{message.stage}</p>
+                  <p className='text-black max-w-1/2'>{message.sub_stage}</p>
+                </div>
+                <div className=' w-full flex flex-row justify-between mt-1 items-center'>
+                  <p className='text-black text-sm'>{message.description}</p>
+                </div>
+              </div>
             ))}
           </div> : null
       }

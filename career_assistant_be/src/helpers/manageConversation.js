@@ -24,15 +24,15 @@ exports.getCurrentConversationState = async (transcript) => {
         - Certifications and Awards
         - Additional Information
       4. Resume Confirmation
-        - Verify Points
-        - Gather Email ID
-        - Tell user that your newly generated resume will be shared shortly 
-      5. Job Search Activation
-      6. Handling Existing Users
+        - Verify Points Breifly
+        - Verify User Email Address
+      5. Ask User if User wants to get a mail for the resume and tail confirmation ,  this for the email_id_confirmation stage , very important
+      6. Job Search Activation
+      7. Handling Existing Users
         - Update Resume
         - Search for Jobs
-      7. Job Search Execution
-      8. Session Termination
+      8. Job Search Execution
+      9. Session Termination
 
     
     Existing User Flow
