@@ -1,9 +1,11 @@
 const WebSocket = require("ws");
 const OpenAI = require("openai");
 const openai = new OpenAI();
+const { SYSTEM_MESSAGE } = require("../utils/consts");
+const {
+  getCurrentConversationState,
+} = require("../helpers/manageConversation");
 
-const SYSTEM_MESSAGE =
-  "Hi , you are AI assistant built for asking questions to build resume for people , you will ask the user to choose between hindi, telugu and marathi and then converse in that language only , you are start with asking 5 questions for building a resume and then readout the resume to them after asking those questions, limit all your responses to under 50 characters";
 const VOICE = "alloy";
 const PORT = process.env.PORT || 5050;
 
@@ -175,28 +177,7 @@ module.exports = (wss, ws2Clients) => {
         ) {
           console.log("Transcription complete", response.transcript.trim());
 
-          generateAppropriateAction(response.transcript.trim()).then(
-            (action) => {
-              console.log("Action", action);
-
-              const conversationItem = {
-                type: "conversation.item.create",
-                item: {
-                  type: "message",
-                  role: "user",
-                  content: [
-                    {
-                      type: "input_text",
-                      text: action.content,
-                    },
-                  ],
-                },
-              };
-
-              openAiWs.send(JSON.stringify(conversationItem));
-              openAiWs.send(JSON.stringify({ type: "response.create" }));
-            }
-          );
+          session.transcript += "[user]:" + response.transcript.trim();
         }
 
         if (response.type === "response.done") {
@@ -205,14 +186,27 @@ module.exports = (wss, ws2Clients) => {
             response.response.output[0]?.content?.find((c) => c.transcript)
               ?.transcript
           );
-          ws2Clients.forEach((client) => {
-            if (client.readyState === client.OPEN) {
-              client.send(
-                response.response.output[0]?.content?.find((c) => c.transcript)
-                  ?.transcript
-              );
-            }
+
+          session.transcript +=
+            "[assistant]:" +
+            response.response.output[0]?.content?.find((c) => c.transcript)
+              ?.transcript;
+
+          getCurrentConversationState(session.transcript).then((state) => {
+            console.log("Current Conversation Stage", state);
+
+            ws2Clients.forEach((client) => {
+              if (client.readyState === client.OPEN) {
+                client.send(
+                  JSON.stringify({
+                    event: "message",
+                    message: state,
+                  })
+                );
+              }
+            });
           });
+
           sendMark(connection, streamSid);
         }
 
@@ -281,6 +275,7 @@ module.exports = (wss, ws2Clients) => {
             break;
           case "start":
             streamSid = data.start.streamSid;
+            session.sessionId = data.start.sessionId;
             console.log("Incoming stream has started", streamSid);
 
             // Reset start and media timestamp on a new stream
