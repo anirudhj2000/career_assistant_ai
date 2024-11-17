@@ -132,7 +132,7 @@ module.exports = (wss, ws2Clients) => {
             JSON.stringify({
               event: "message",
               message: {
-                stage: "job_search_execution",
+                stage: "job_showcase",
                 jobs: JSON.stringify(jobs),
               },
             })
