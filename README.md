@@ -1,40 +1,46 @@
 # Career Assistant AI
 
-Career Assistant AI is an intelligent platform designed to assist users in creating resumes, exploring career opportunities, and managing job applications. Built using OpenAI's Realtime API for natural language understanding and Twilio for real-time communication, this application combines AI-driven insights with seamless user interactions.
+Career Assistant AI is an intelligent platform designed to help users create resumes, explore career opportunities, and manage job applications. Built using OpenAI's API for natural language understanding and Twilio for real-time communication, this application combines AI-driven insights with seamless user interactions.
 
 ---
 
-## **Tech Stack**
+## Tech Stack
 
-### **Backend**
-- **Node.js**: Backend logic and integrations.
-- **OpenAI Realtime API**: For generating resumes and natural language processing.
-- **Twilio**: For real-time call and message handling.
+### Backend
 
-### **Frontend**
+- **Node.js**: Handles backend logic and integrations.
+- **OpenAI API**: Generates resumes and processes natural language.
+- **Twilio**: Manages real-time calls and messages.
+
+### Frontend
+
 - **Next.js**: Framework for building the user interface.
-- **React.js**: Used in components for UI interactivity.
+- **React.js**: Provides UI interactivity through components.
 
-### **Deployment**
+### Deployment
+
 - **Monorepo Structure**:
-  - `career_assistant_ui`: The UI project built with Next.js.
-  - `career_assistant_be`: The backend project powered by Node.js.
+  - `career_assistant_ui`: UI project built with Next.js.
+  - `career_assistant_be`: Backend project powered by Node.js.
 - **Local Development**:
-  - **ngrok**: Used to expose the local server to the internet for Twilio webhooks and testing.
+  - **ngrok**: Exposes the local server to the internet for Twilio webhooks and testing.
 
 ---
 
-## **Features**
+## Features
 
 1. **AI Resume Building**:
+
    - Generate professional resumes using OpenAI.
-   - Support for multiple languages and custom fields.
+   - Supports multiple languages and custom fields.
 
 2. **Real-Time Communication**:
-   - Twilio integration for live interactions.
-   - Job search activation and email notifications.
+
+   - Integrates Twilio for live interactions.
+   - Activates job searches and sends email notifications.
 
 3. **Monorepo Architecture**:
+
    - Simplifies project management and code sharing across frontend and backend.
 
 4. **Local Development with ngrok**:
@@ -42,9 +48,10 @@ Career Assistant AI is an intelligent platform designed to assist users in creat
 
 ---
 
-## **Setup Instructions**
+## Setup Instructions
 
-### **Prerequisites**
+### Prerequisites
+
 - Node.js (v16 or later)
 - npm or yarn
 - ngrok (for local testing)
@@ -54,7 +61,49 @@ Career Assistant AI is an intelligent platform designed to assist users in creat
 
 ---
 
-### **1. Clone the Repository**
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/your-repo/career-assistant-ai.git
 cd career-assistant-ai
+```
+
+### 2. Install Dependencies
+
+```bash
+# For backend
+cd career_assistant_be
+npm install
+
+# For frontend
+cd ../career_assistant_ui
+npm install
+```
+
+### 3. Set Up Environment Variables
+
+Create a `.env` file in both `career_assistant_be` and `career_assistant_ui` directories and add the necessary environment variables as specified in the `.env.example` files.
+
+### 4. Start the Development Servers
+
+```bash
+# Start backend server
+cd career_assistant_be
+npm run dev
+
+# Start frontend server
+cd ../career_assistant_ui
+npm run dev
+```
+
+### 5. Expose Local Server with ngrok
+
+```bash
+ngrok http 3000
+```
+
+Copy the forwarding URL provided by ngrok and update your Twilio webhook settings accordingly.
+
+### 6. Access the Application
+
+Open your browser and navigate to `http://localhost:3000` to access the application.
