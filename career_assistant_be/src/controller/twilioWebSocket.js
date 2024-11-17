@@ -9,6 +9,11 @@ const { getUserData, updateUserData } = require("./user.controller");
 const { wsEvents, isWsCallReady } = require("../utils/readyEvent");
 const { SYSTEM_MESSAGE_NEW_USER } = require("../utils/consts");
 const { generateInitialPrompt } = require("../helpers/generateInitialPrompt");
+const { manageActions } = require("../helpers/manageActions");
+const {
+  generateJobsListings,
+  generateJobSummary,
+} = require("../helpers/manageJobsListings");
 
 const VOICE = "alloy";
 const PORT = process.env.PORT || 5050;
@@ -43,9 +48,10 @@ module.exports = (wss, ws2Clients) => {
       sessionId: null,
       transcript: "",
     };
+    let jobSearchMode = false;
 
     const openAiWs = new WebSocket(
-      "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview",
+      "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01",
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -110,6 +116,49 @@ module.exports = (wss, ws2Clients) => {
           JSON.stringify(initialConversationItem)
         );
       openAiWs.send(JSON.stringify(initialConversationItem));
+      openAiWs.send(JSON.stringify({ type: "response.create" }));
+    };
+
+    const triggerJobSearch = async () => {
+      let jobs = generateJobsListings();
+      jobSearchMode = true;
+
+      ws2Clients.forEach((client) => {
+        if (client.readyState === client.OPEN) {
+          client.send(
+            JSON.stringify({
+              event: "message",
+              message: {
+                stage: "job_search_execution",
+                jobs: JSON.stringify(jobs),
+              },
+            })
+          );
+        }
+      });
+
+      const jobSummary = await generateJobSummary(jobs);
+
+      const jobSearchItem = {
+        type: "conversation.item.create",
+        item: {
+          type: "message",
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: jobSummary,
+            },
+          ],
+        },
+      };
+
+      if (SHOW_TIMING_MATH)
+        console.log(
+          "Sending job search conversation item:",
+          JSON.stringify(jobSearchItem)
+        );
+      openAiWs.send(JSON.stringify(jobSearchItem));
       openAiWs.send(JSON.stringify({ type: "response.create" }));
     };
 
@@ -206,20 +255,28 @@ module.exports = (wss, ws2Clients) => {
             userTypes.EXISTING_USER_NO_RESUME
           );
 
-          getCurrentConversationState(session.transcript).then((state) => {
-            console.log("Current Conversation Stage", state);
+          manageActions(session.transcript)
+            .then((state) => {
+              console.log("Current Conversation Stage", state);
 
-            ws2Clients.forEach((client) => {
-              if (client.readyState === client.OPEN) {
-                client.send(
-                  JSON.stringify({
-                    event: "message",
-                    message: state,
-                  })
-                );
+              if (state.action === "get_jobs" && !jobSearchMode) {
+                triggerJobSearch();
+              } else {
+                ws2Clients.forEach((client) => {
+                  if (client.readyState === client.OPEN) {
+                    client.send(
+                      JSON.stringify({
+                        event: "message",
+                        message: state,
+                      })
+                    );
+                  }
+                });
               }
+            })
+            .catch((error) => {
+              console.error("Error in manageActions:", error);
             });
-          });
 
           sendMark(connection, streamSid);
         }
@@ -279,13 +336,14 @@ module.exports = (wss, ws2Clients) => {
               console.log(
                 `Received media message with timestamp: ${latestMediaTimestamp}ms`
               );
-            if (openAiWs.readyState === WebSocket.OPEN) {
+            if (openAiWs.readyState === WebSocket.OPEN && !jobSearchMode) {
               const audioAppend = {
                 type: "input_audio_buffer.append",
                 audio: data.media.payload,
               };
               openAiWs.send(JSON.stringify(audioAppend));
             }
+
             break;
           case "start":
             streamSid = data.start.streamSid;
