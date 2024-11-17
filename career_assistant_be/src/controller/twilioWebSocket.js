@@ -1,10 +1,14 @@
 const WebSocket = require("ws");
 const OpenAI = require("openai");
 const openai = new OpenAI();
-const { SYSTEM_MESSAGE } = require("../utils/consts");
 const {
   getCurrentConversationState,
 } = require("../helpers/manageConversation");
+const { userTypes } = require("../utils/consts");
+const { getUserData } = require("./controller");
+const { wsEvents, isWsCallReady } = require("../utils/readyEvent");
+const { SYSTEM_MESSAGE_NEW_USER } = require("../utils/consts");
+const { generateInitialPrompt } = require("../helpers/generateInitialPrompt");
 
 const VOICE = "alloy";
 const PORT = process.env.PORT || 5050;
@@ -25,9 +29,9 @@ const LOG_EVENT_TYPES = [
 // Show AI response elapsed timing calculations
 const SHOW_TIMING_MATH = false;
 
-module.exports = (wss, ws2Clients) => {
+module.exports = (wss, ws2Clients, initialPrompt) => {
   wss.on("connection", (connection) => {
-    console.log("Client connected");
+    console.log("Client connected", connection, initialPrompt, isWsCallReady);
 
     // Connection-specific state
     let streamSid = null;
@@ -51,7 +55,10 @@ module.exports = (wss, ws2Clients) => {
     );
 
     // Control initial session with OpenAI
-    const initializeSession = () => {
+    const initializeSession = async () => {
+      let initialPrompt = await generateInitialPrompt();
+      console.log("Initializing session with OpenAI", initialPrompt);
+
       const sessionUpdate = {
         type: "session.update",
         session: {
@@ -59,7 +66,7 @@ module.exports = (wss, ws2Clients) => {
           input_audio_format: "g711_ulaw",
           output_audio_format: "g711_ulaw",
           voice: VOICE,
-          instructions: SYSTEM_MESSAGE,
+          instructions: initialPrompt,
           modalities: ["text", "audio"],
           temperature: 0.8,
           input_audio_transcription: {
@@ -311,23 +318,4 @@ module.exports = (wss, ws2Clients) => {
       console.error("Error in the OpenAI WebSocket:", error);
     });
   });
-};
-
-const generateAppropriateAction = async (string) => {
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a helpful assistant. that will respond in the same language as the user , you are part of an system that is helping with user to search a job of get a resume , can on user input you can repond with either job opportunities or continue development",
-      },
-      {
-        role: "user",
-        content: string,
-      },
-    ],
-  });
-
-  return completion.choices[0].message;
 };
