@@ -11,6 +11,10 @@ enum Codec {
 }
 
 
+// LiveAudioVisualizer
+// Use the getUserMedia API to capture audio from the user's microphone
+
+
 export default function Home() {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
@@ -76,7 +80,7 @@ export default function Home() {
 
   useEffect(() => {
     // Replace 'ws://localhost:5050' with your actual WebSocket server URL
-    ws.current = new WebSocket(`wss://18e2-110-235-236-187.ngrok-free.app/ui`);
+    ws.current = new WebSocket(`wss://${process.env.NEXT_PUBLIC_HOST_URL}/ui`);
 
     ws.current.onopen = () => {
       console.log('WebSocket connection established');

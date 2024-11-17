@@ -6,57 +6,74 @@ const openai = new OpenAI();
 exports.getCurrentConversationState = async (transcript) => {
   try {
     let prompt = `
-      You are an assistant designed to classify conversation transcripts into predefined stages of a resume-building and job search process. Below are the stages:
+    You are an assistant designed to classify conversation transcripts into predefined stages of a resume-building and job search process. Below are the stages:
 
-      New User Flow
-        1. User Initiation and Identification
-          - New User
-          - Existing User
-        2. Language Selection
-          - Select Language
-          - Confirm Language
-        3. Resume Building Process
-          - Personal Details
-          - Professional Summary
-          - Education
-          - Work Experience
-          - Skills
-          - Certifications and Awards
-          - Additional Information
-        4. Resume Confirmation
-          - Verify Points
-          - Gather Email ID
-          - Tell user that your newly generated resume will be shared shortly 
-        5. Job Search Activation
-        6. Handling Existing Users
-          - Update Resume
-          - Search for Jobs
-        7. Job Search Execution
-        8. Session Termination
+    New User Flow
+      1. User Initiation and Identification
+        - New User
+        - Existing User
+      2. Language Selection
+        - Select Language
+        - Confirm Language
+      3. Resume Building Process
+        - Personal Details
+        - Professional Summary
+        - Education
+        - Work Experience
+        - Skills
+        - Certifications and Awards
+        - Additional Information
+      4. Resume Confirmation
+        - Verify Points
+        - Gather Email ID
+        - Tell user that your newly generated resume will be shared shortly 
+      5. Job Search Activation
+      6. Handling Existing Users
+        - Update Resume
+        - Search for Jobs
+      7. Job Search Execution
+      8. Session Termination
+
+    
+    Existing User Flow
+      1. User Initiation and welcome
+      2. Ask User for the action to be performed - Update Resume or Search for Jobs
+      3. Provide Assistance based on User's Selection
+      4. Session Termination
 
       
-      Existing User Flow
-        1. User Initiation and welcome
-        2. Ask User for the action to be performed - Update Resume or Search for Jobs
-        3. Provide Assistance based on User's Selection
-        4. Session Termination
-
-        
 
 
-        Based on the transcript below,
-        
-        [Transcript Start]
+      Based on the transcript below,
+      
+      [Transcript Start]
 
-    `;
+  `;
 
     prompt += "\n" + transcript;
     prompt += ` 
-        
+      
 
-        [Transcript End]
+      [Transcript End]
 
-        you are to return only a json object containing fields stage , sub_stage if applicatble and description of the stage and nothing else`;
+     based on the transcript you can classify the stage of the conversation is applicable and providea a sub_stage if applicable and a description of the stage. the format the data should be returned in is a json object with the following fields:
+        {
+            "stage": "stage of the conversation process based on the transcript",
+            "sub_stage": "sub stage of the conversation process based on the transcript",
+            "description": "description of the stage"
+        }
+
+        Options for stages are:
+        - intial_conversation
+        - language_selection
+        - resume_building
+        - resume_confirmation
+        - email_id_confirmation
+        - job_search_activation
+        - job_search_execution
+
+
+    you are to return only a json object containing fields stage , sub_stage if applicatble and description of the stage and nothing else`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-2024-08-06",
@@ -152,6 +169,7 @@ exports.generateResumeSummary = async (resume) => {
       ],
     });
 
+    console.log("Resume Summary", completion.choices[0].message);
     return completion.choices[0].message;
   } catch (error) {
     console.error("Error generating resume summary:", error);

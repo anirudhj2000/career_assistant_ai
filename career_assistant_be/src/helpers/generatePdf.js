@@ -17,7 +17,11 @@ exports.generatePDF = async (jsonData) => {
 
     // Set content and generate PDF
     await page.setContent(htmlContent);
-    await page.pdf({ path: "resume.pdf", format: "A4", printBackground: true });
+    await page.pdf({
+      path: `resume_${Date.now()}.pdf`,
+      format: "A4",
+      printBackground: true,
+    });
 
     console.log("PDF generated successfully!");
     await browser.close();
