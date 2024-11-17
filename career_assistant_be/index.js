@@ -4,6 +4,10 @@ const { WebSocketServer } = require("ws");
 const app = require("./app");
 const setupWebSocket = require("./src/controller/twilioWebSocket");
 const setupUIWebSocket = require("./src/controller/uiWebSocket");
+const { wsEvents, isWsCallReady } = require("./src/utils/readyEvent");
+const {
+  generateInitialPrompt,
+} = require("./src/helpers/generateInitialPrompt");
 
 dotenv.config();
 
@@ -16,11 +20,26 @@ const server = http.createServer(app);
 const wsCall = new WebSocketServer({ noServer: true });
 const wsUI = new WebSocketServer({ noServer: true });
 const wsUIClients = [];
+let initialPromptString = "";
+
 server.on("upgrade", (request, socket, head) => {
   if (request.url === "/media-stream") {
-    wsCall.handleUpgrade(request, socket, head, (ws) => {
-      wsCall.emit("connection", ws, request);
-    });
+    if (isWsCallReady.ready) {
+      // generateInitialPrompt()
+      //   .then((initialPrompt) => {
+      //     initialPromptString = initialPrompt;
+      //     wsCall.handleUpgrade(request, socket, head, (ws) => {
+      //       wsCall.emit("connection", ws, request);
+      //     });
+      //   })
+      //   .catch((err) => {
+      //     socket.destroy();
+      //     wsEvents.emit("resetWs");
+      //   });
+      wsCall.handleUpgrade(request, socket, head, (ws) => {
+        wsCall.emit("connection", ws, request);
+      });
+    }
   } else if (request.url === "/ui") {
     wsUI.handleUpgrade(request, socket, head, (ws) => {
       wsUI.emit("connection", ws, request);

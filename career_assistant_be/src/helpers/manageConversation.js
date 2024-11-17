@@ -86,8 +86,6 @@ exports.getCurrentConversationState = async (transcript) => {
       },
     });
 
-    console.log(completion.choices[0]);
-
     const conversationState = JSON.parse(completion.choices[0].message.content);
     return conversationState;
   } catch (error) {
@@ -96,19 +94,52 @@ exports.getCurrentConversationState = async (transcript) => {
   }
 };
 
-module.exports.generateResume = async (text) => {
-  const openai = new OpenAI();
+exports.generateResumeSummary = async (resume) => {
+  try {
+    let prompt = `
+        You are an assistant designed to generate a summary of a resume. Below are the fields to be included in the summary:
+  
+            resume format
+          1. Personal Details
+          2. Professional Summary
+          3. Education
+          4. Work Experience
+          5. Skills
+          6. Certifications and Awards
+          7. Additional Information
+  
+          Based on the resume below,
+          
+          [Resume Start]
+  
+      `;
 
-  const response = await openai.Completion.create({
-    model: "gpt-4o",
-    prompt: `Extract the following details from the text and format them as a JSON object: name, personal details, educational background, work experience.\n\nText: ${text}\n\nJSON:`,
-    max_tokens: 150,
-    temperature: 0.7,
-    top_p: 1,
-    frequency_penalty: 0,
-    presence_penalty: 0,
-  });
+    prompt += "\n" + JSON.stringify(resume);
+    prompt += ` 
+          
+  
+          [Resume End]
+  
+          you are to return the summary of the resume in under 200 words and mention the data missing from the resumn if any which will be needed to asked from the user`;
 
-  const resume = JSON.parse(response.choices[0].text.trim());
-  return resume;
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-2024-08-06",
+      messages: [
+        {
+          role: "system",
+          content: prompt,
+        },
+        {
+          role: "user",
+          content:
+            "Generate a summary of the resume and return on the summary in a paragraph format 1st pargraph should contain information present and then response  should contain list of items missing based on the resume format",
+        },
+      ],
+    });
+
+    return completion.choices[0].message;
+  } catch (error) {
+    console.error("Error generating resume summary:", error);
+    return {};
+  }
 };
