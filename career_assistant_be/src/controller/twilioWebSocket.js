@@ -5,7 +5,7 @@ const {
   getCurrentConversationState,
 } = require("../helpers/manageConversation");
 const { userTypes } = require("../utils/consts");
-const { getUserData } = require("./controller");
+const { getUserData, updateUserData } = require("./user.controller");
 const { wsEvents, isWsCallReady } = require("../utils/readyEvent");
 const { SYSTEM_MESSAGE_NEW_USER } = require("../utils/consts");
 const { generateInitialPrompt } = require("../helpers/generateInitialPrompt");
@@ -198,6 +198,9 @@ module.exports = (wss, ws2Clients, initialPrompt) => {
             "[assistant]:" +
             response.response.output[0]?.content?.find((c) => c.transcript)
               ?.transcript;
+
+          console.log("Session Transcript", session.transcript);
+          updateUserData(isWsCallReady.user, session.transcript);
 
           getCurrentConversationState(session.transcript).then((state) => {
             console.log("Current Conversation Stage", state);
