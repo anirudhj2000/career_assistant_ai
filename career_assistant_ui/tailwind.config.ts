@@ -13,6 +13,16 @@ const config: Config = {
         foreground: "var(--foreground)",
       },
     },
+    keyframes: {
+      slideUp: {
+        "0%": { opacity: "0.5", transform: "translateY(5vh)" },
+
+        "100%": { opacity: "1", transform: "translateY(0)" },
+      },
+    },
+    animation: {
+      slideUp: "slideUp 0.5s ease-in-out",
+    },
   },
   plugins: [],
 };

@@ -38,7 +38,7 @@ const ShowJobsModal = () => {
             className={`${isOpen ? "fixed" : "hidden"
                 } z-50 inset-0 flex items-center justify-center bg-black/30`}
         >
-            <div className="bg-white w-8/12 max-h-[70vh] overflow-y-scroll py-6 roun px-8 flex flex-col ">
+            <div className="bg-white w-8/12 max-h-[70vh] animate-slideUp overflow-y-scroll py-6 roun px-8 flex flex-col ">
                 <div className="flex flex-col w-full">
                     <div className="flex flex-row w-full justify-end ">
                         <a
