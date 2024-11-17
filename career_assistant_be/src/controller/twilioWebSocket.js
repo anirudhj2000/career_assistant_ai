@@ -29,9 +29,9 @@ const LOG_EVENT_TYPES = [
 // Show AI response elapsed timing calculations
 const SHOW_TIMING_MATH = false;
 
-module.exports = (wss, ws2Clients, initialPrompt) => {
+module.exports = (wss, ws2Clients) => {
   wss.on("connection", (connection) => {
-    console.log("Client connected", connection, initialPrompt, isWsCallReady);
+    console.log("Client connected", isWsCallReady);
 
     // Connection-specific state
     let streamSid = null;
@@ -182,17 +182,17 @@ module.exports = (wss, ws2Clients, initialPrompt) => {
           response.type ===
           "conversation.item.input_audio_transcription.completed"
         ) {
-          console.log("Transcription complete", response.transcript.trim());
+          // console.log("Transcription complete", response.transcript.trim());
 
           session.transcript += "[user]:" + response.transcript.trim();
         }
 
         if (response.type === "response.done") {
-          console.log(
-            "Response done",
-            response.response.output[0]?.content?.find((c) => c.transcript)
-              ?.transcript
-          );
+          // console.log(
+          //   "Response done",
+          //   response.response.output[0]?.content?.find((c) => c.transcript)
+          //     ?.transcript
+          // );
 
           session.transcript +=
             "[assistant]:" +
@@ -200,7 +200,11 @@ module.exports = (wss, ws2Clients, initialPrompt) => {
               ?.transcript;
 
           console.log("Session Transcript", session.transcript);
-          updateUserData(isWsCallReady.user, session.transcript);
+          updateUserData(
+            isWsCallReady.user,
+            session.transcript,
+            userTypes.EXISTING_USER_NO_RESUME
+          );
 
           getCurrentConversationState(session.transcript).then((state) => {
             console.log("Current Conversation Stage", state);
