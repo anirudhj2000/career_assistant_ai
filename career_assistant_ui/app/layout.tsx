@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ShowJobsModal from "@/components/showJobsModal";
+import Sidebar from "@/components/MobileSidebar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,6 +20,7 @@ export default function RootLayout({
       >
         {children}
         <ShowJobsModal />
+        <Sidebar />
       </body>
     </html>
   );

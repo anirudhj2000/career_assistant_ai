@@ -182,8 +182,11 @@ export default function Home() {
   };
 
   return (
-    <div className='w-screen h-screen flex flex-col items-center justify-center bg-white/80'>
-      <div className='flex flex-col items-center bg-gray-100 p-8 rounded-xl w-4/12 mt-[10vh] shadow-lg'>
+    <div className='w-screen h-screen flex flex-col items-center justify-center bg-white/90'>
+
+      <h1 className='text-4xl font-bold text-black '>AI Career Assistant</h1>
+      <p className='text-black text-center w-9/12 mt-4 '>Welcome to the AI Career Assistant. Click the button below to start a call.</p>
+      <div className='flex flex-col items-center bg-gray-100 p-8 mt-[2.5vh] rounded-xl w-10/12 lg:w-4/12 lg:mt-[10vh] shadow-lg'>
         {loading ? (
           <p className='text-gray-700 mb-4'>Loading...</p>
         ) : (
