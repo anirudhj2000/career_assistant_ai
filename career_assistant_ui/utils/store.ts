@@ -1,9 +1,11 @@
 import { create } from "zustand";
-import { showJobsInterface } from "./types";
+import { showJobsInterface, MobileSidebarInterface } from "./types";
 
 interface Store {
   showJobsModal: showJobsInterface;
   setShowJobsModal: (showJobsModal: showJobsInterface) => void;
+  sidebar: MobileSidebarInterface;
+  setShow: (sidebar: MobileSidebarInterface) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -12,4 +14,10 @@ export const useStore = create<Store>((set) => ({
     message: "",
   },
   setShowJobsModal: (showJobsModal) => set({ showJobsModal }),
+
+  sidebar: {
+    show: true,
+    id: "",
+  },
+  setShow: (sidebar) => set((state) => ({ ...state, sidebar })),
 }));
