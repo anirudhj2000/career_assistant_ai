@@ -16,7 +16,7 @@ export const useStore = create<Store>((set) => ({
   setShowJobsModal: (showJobsModal) => set({ showJobsModal }),
 
   sidebar: {
-    show: true,
+    show: false,
     id: "",
   },
   setShow: (sidebar) => set((state) => ({ ...state, sidebar })),

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ShowJobsModal from "@/components/showJobsModal";
 import Sidebar from "@/components/MobileSidebar";
+import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,6 +19,7 @@ export default function RootLayout({
       <body
         className={`antialiased`}
       >
+        <Navbar />
         {children}
         <ShowJobsModal />
         <Sidebar />
