@@ -30,6 +30,7 @@ exports.getUserData = async (id) => {
   try {
     const collection = await connectToDatabase();
     const user = await collection.findOne({ id: id });
+    console.log("User data: ", JSON.stringify(user));
     return user;
   } catch (err) {
     console.error("Error in getUserData: ", err);
@@ -62,7 +63,7 @@ exports.createUser = async () => {
   }
 };
 
-exports.updateUserData = async (id, data) => {
+exports.updateUserData = async (id, data, type) => {
   try {
     console.log("Data in updateUserData: ", data);
 
@@ -74,7 +75,8 @@ exports.updateUserData = async (id, data) => {
     // Create updateFields object directly
     const updateFields = {
       ...resumeObject.resume.personalDetails, // Spread all personal details
-      resume: resumeObject.resume, // Include full resume object
+      resume: resumeObject.resume,
+      type: type,
     };
 
     // Update the database

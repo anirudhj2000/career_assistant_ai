@@ -20,14 +20,16 @@ exports.generateInitialPrompt = async () => {
     isWsCallReady.userType == userTypes.EXISTING_USER &&
     response.resume
   ) {
-    resumeSummary = await generateResumeSummary(response.Item.resume);
-    return SYSTEM_MESSAGE_EXISTING_USER + resumeSummary;
+    resumeSummary = await generateResumeSummary(response.resume);
+    return SYSTEM_MESSAGE_EXISTING_USER + JSON.stringify(resumeSummary);
   } else if (
-    isWsCallReady.userType === userTypes.EXISTING_USER_NO_RESUME ||
+    isWsCallReady.userType == userTypes.EXISTING_USER_NO_RESUME ||
     !response.resume ||
     !response.name
   ) {
-    resumeSummary = await generateResumeSummary(response.Item.resume);
-    return SYSTEM_MESSAGE_EXISTING_USER_NO_RESUME + resumeSummary;
+    resumeSummary = await generateResumeSummary(response.resume);
+    return (
+      SYSTEM_MESSAGE_EXISTING_USER_NO_RESUME + JSON.stringify(resumeSummary)
+    );
   }
 };
