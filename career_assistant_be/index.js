@@ -2,8 +2,8 @@ const dotenv = require("dotenv");
 const http = require("http");
 const { WebSocketServer } = require("ws");
 const app = require("./app");
-const setupWebSocket = require("./src/config/twilioWebSocket");
-const setupUIWebSocket = require("./src/config/uiWebSocket");
+const setupWebSocket = require("./src/controller/twilioWebSocket");
+const setupUIWebSocket = require("./src/controller/uiWebSocket");
 
 dotenv.config();
 
