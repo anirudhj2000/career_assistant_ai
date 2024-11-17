@@ -67,8 +67,7 @@ exports.updateUserData = async (id, data, type) => {
   try {
     console.log("Data in updateUserData: ", data);
 
-    const summary = await generateResumeObject(data);
-    const resumeObject = JSON.parse(summary);
+    const resumeObject = await generateResumeObject(data);
 
     console.log("Resume Object: ", resumeObject, resumeObject.resume);
 

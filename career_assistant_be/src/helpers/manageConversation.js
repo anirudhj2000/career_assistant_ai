@@ -237,5 +237,5 @@ exports.generateResumeObject = async (transcript) => {
 
   console.log("Resume Object", completion.choices[0].message.content);
 
-  return completion.choices[0].message.content;
+  return JSON.parse(completion.choices[0].message.content);
 };
