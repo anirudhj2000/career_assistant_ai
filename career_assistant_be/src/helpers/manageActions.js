@@ -9,6 +9,7 @@ const {
   updateUserData,
   getUserData,
 } = require("../controller/user.controller");
+const { isWsCallReady } = require("../utils/readyEvent");
 
 const actions = [
   "initial_conversation",
