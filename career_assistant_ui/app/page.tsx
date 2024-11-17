@@ -12,39 +12,67 @@ enum Codec {
 
 
 export default function Home() {
+  const [loading, setLoading] = useState(true);
   const [token, setToken] = useState('');
   const [callInProgress, setCallInProgress] = useState(false);
-  const [loading, setLoading] = useState(true);
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<any>(null);
   const [websocketMessage, setWebsocketMessage] = useState<Array<string>>([]);
   const ws = useRef<WebSocket | null>(null);
 
 
-  // Fetch Token on Component Mount
+  const generateToken = async (newUser: boolean, id?: string) => {
+    try {
+
+      let obj: any = {
+        identity: 'user',
+        newUser: newUser
+      }
+
+      if (!newUser) {
+        obj = {
+
+          id: id,
+          ...obj
+        }
+      }
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth`,
+        obj,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        }
+      );
+
+      setToken(response.data.token);
+      localStorage.setItem('userdata', JSON.stringify(response.data));
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching token:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    const initializeDevice = async () => {
-      try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/token`,
-          { identity: 'user' },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            withCredentials: true,
-          }
-        );
-        setToken(response.data.token);
-      } catch (err) {
-        console.error("Error fetching token:", err);
-      } finally {
+    const data = localStorage.getItem('userdata');
+    if (!data) {
+      generateToken(true)
+    }
+    else {
+      const userdata = JSON.parse(data);
+      if (userdata.token) {
+        generateToken(false, userdata.id)
+      }
+      else {
         setLoading(false);
       }
-    };
-
-    initializeDevice();
-  }, []);
+    }
+  }, [])
 
   useEffect(() => {
     // Replace 'ws://localhost:5050' with your actual WebSocket server URL
