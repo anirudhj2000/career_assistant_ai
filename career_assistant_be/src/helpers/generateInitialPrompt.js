@@ -3,7 +3,7 @@ const {
   SYSTEM_MESSAGE_EXISTING_USER_NO_RESUME,
   SYSTEM_MESSAGE_NEW_USER,
 } = require("../utils/consts");
-const { getUserData } = require("../controller/controller");
+const { getUserData } = require("../controller/user.controller");
 const { wsEvents, isWsCallReady } = require("../utils/readyEvent");
 const { userTypes } = require("../utils/consts");
 const { generateResumeSummary } = require("./manageConversation");

@@ -1,5 +1,6 @@
 const OpenAI = require("openai");
 const fs = require("fs");
+const { resume_dummy } = require("../utils/consts");
 const openai = new OpenAI();
 
 exports.getCurrentConversationState = async (transcript) => {
@@ -7,6 +8,7 @@ exports.getCurrentConversationState = async (transcript) => {
     let prompt = `
       You are an assistant designed to classify conversation transcripts into predefined stages of a resume-building and job search process. Below are the stages:
 
+      New User Flow
         1. User Initiation and Identification
           - New User
           - Existing User
@@ -22,12 +24,25 @@ exports.getCurrentConversationState = async (transcript) => {
           - Certifications and Awards
           - Additional Information
         4. Resume Confirmation
+          - Verify Points
+          - Gather Email ID
+          - Tell user that your newly generated resume will be shared shortly 
         5. Job Search Activation
         6. Handling Existing Users
           - Update Resume
           - Search for Jobs
         7. Job Search Execution
         8. Session Termination
+
+      
+      Existing User Flow
+        1. User Initiation and welcome
+        2. Ask User for the action to be performed - Update Resume or Search for Jobs
+        3. Provide Assistance based on User's Selection
+        4. Session Termination
+
+        
+
 
         Based on the transcript below,
         
@@ -142,4 +157,67 @@ exports.generateResumeSummary = async (resume) => {
     console.error("Error generating resume summary:", error);
     return {};
   }
+};
+
+exports.generateResumeObject = async (transcript) => {
+  let prompt = `
+    Analyze the provided transcript and extract relevant information to create a resume in the following JSON format. 
+    Include only the fields available in the transcript. 
+    Ensure all data is formatted correctly for each field. Return the output as a JSON object:
+  
+    Data Format:
+    `;
+
+  prompt += "\n" + JSON.stringify(resume_dummy);
+
+  prompt += `
+    Transcript:
+  
+    [Transcript Start]
+    `;
+
+  prompt += "\n" + JSON.stringify(transcript);
+  prompt += `
+    [Transcript End]
+  
+  
+    Only return a JSON object only include the fields that are present in the transcript else you can skip the field
+    `;
+
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-2024-08-06",
+    messages: [
+      {
+        role: "system",
+        content: prompt,
+      },
+      {
+        role: "user",
+        content:
+          "Generate a resume based on the transcript and return the resume in JSON format",
+      },
+    ],
+    response_format: {
+      // See /docs/guides/structured-outputs
+      type: "json_schema",
+      json_schema: {
+        name: "resume_object",
+        schema: {
+          type: "object",
+          properties: {
+            resume: {
+              description:
+                "return the complete resume object based on the transcript",
+              type: "object",
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
+  });
+
+  console.log("Resume Object", completion.choices[0].message.content);
+
+  return completion.choices[0].message.content;
 };
