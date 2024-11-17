@@ -27,7 +27,7 @@ Career Assistant AI is an intelligent platform designed to help users create res
 
 ---
 
-## Features [![Link](https://docs.google.com/document/d/1Z4fs2A63pehhTRC9giIPhy68bQzwSbkB/edit?usp=sharing&ouid=116269735427886173755&rtpof=true&sd=true))](Document)
+## Features [![Document](https://docs.google.com/document/d/1Z4fs2A63pehhTRC9giIPhy68bQzwSbkB/edit?usp=sharing&ouid=116269735427886173755&rtpof=true&sd=true))]
 
 1. **AI Resume Building**:
 
