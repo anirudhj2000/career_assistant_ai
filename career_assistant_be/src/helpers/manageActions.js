@@ -85,6 +85,6 @@ exports.manageActions = async (transcript) => {
 };
 
 exports.updateUserDataAction = async (transcript, type) => {
-  const resumeObject = await generateResumeObject(data);
+  const resumeObject = await generateResumeObject(transcript);
   await updateUserData(isWsCallReady.user, resumeObject, type);
 };
