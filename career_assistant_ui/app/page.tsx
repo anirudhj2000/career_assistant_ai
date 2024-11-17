@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Device } from '@twilio/voice-sdk';
 import axios from 'axios';
+import { useStore } from "@/utils/store";
+import { jobsDummy } from '@/utils/consts';
 
 // Define Codec Preferences
 enum Codec {
@@ -21,13 +23,13 @@ export default function Home() {
   const [callInProgress, setCallInProgress] = useState(false);
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<any>(null);
-  const [websocketMessage, setWebsocketMessage] = useState<Array<string>>([]);
+  const { setShowJobsModal } = useStore();
+  const [websocketMessage, setWebsocketMessage] = useState<Array<any>>([]);
   const ws = useRef<WebSocket | null>(null);
 
 
   const generateToken = async (newUser: boolean, id?: string) => {
     try {
-
       let obj: any = {
         identity: 'user',
         newUser: newUser
@@ -35,7 +37,6 @@ export default function Home() {
 
       if (!newUser) {
         obj = {
-
           id: id,
           ...obj
         }
@@ -79,7 +80,6 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    // Replace 'ws://localhost:5050' with your actual WebSocket server URL
     ws.current = new WebSocket(`wss://${process.env.NEXT_PUBLIC_HOST_URL}/ui`);
 
     ws.current.onopen = () => {
@@ -88,10 +88,12 @@ export default function Home() {
 
     ws.current.onmessage = (event) => {
       console.log('Received message from server:',);
-      console.log("data response", event);
+      const data = JSON.parse(event.data);
 
-
-      let data = JSON.parse(event.data);
+      if (data.message.stage == 'job_showcase') {
+        // setShowJobsModal({ show: true, message: data.message.jobs });
+        setShowJobsModal({ show: true, message: JSON.stringify(jobsDummy) });
+      }
 
       setWebsocketMessage((prev) => [data.message, ...prev]);
 
@@ -220,7 +222,7 @@ export default function Home() {
           <div className='flex flex-col items-center bg-gray-100 p-4 max-h-[40vh] overflow-y-auto rounded-xl w-8/12 shadow-lg mt-[5vh]'>
             <h2 className='text-xl text-black font-bold'>Websocket Messages</h2>
             {websocketMessage.map((message: any, index) => (
-              <div className='flex flex-col items-start gap-x-4 p-2 w-full border-[1px] rounded-lg mb-4'>
+              <div key={index} className='flex flex-col items-start gap-x-4 p-2 w-full border-[1px] rounded-lg mb-4'>
                 <div className=' w-full flex flex-row justify-between items-center'>
                   <p className='text-black'>{message.stage}</p>
                   <p className='text-black max-w-1/2'>{message.sub_stage}</p>

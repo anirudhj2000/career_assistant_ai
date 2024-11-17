@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ShowJobsModal from "@/components/showJobsModal";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,6 +18,7 @@ export default function RootLayout({
         className={`antialiased`}
       >
         {children}
+        <ShowJobsModal />
       </body>
     </html>
   );
