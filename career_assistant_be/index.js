@@ -8,6 +8,8 @@ const { wsEvents, isWsCallReady } = require("./src/utils/readyEvent");
 const {
   generateInitialPrompt,
 } = require("./src/helpers/generateInitialPrompt");
+const { updateUserData } = require("./src/controller/user.controller");
+const { transcript_dummy } = require("./src/utils/consts");
 
 dotenv.config();
 
@@ -25,17 +27,6 @@ let initialPromptString = "";
 server.on("upgrade", (request, socket, head) => {
   if (request.url === "/media-stream") {
     if (isWsCallReady.ready) {
-      // generateInitialPrompt()
-      //   .then((initialPrompt) => {
-      //     initialPromptString = initialPrompt;
-      //     wsCall.handleUpgrade(request, socket, head, (ws) => {
-      //       wsCall.emit("connection", ws, request);
-      //     });
-      //   })
-      //   .catch((err) => {
-      //     socket.destroy();
-      //     wsEvents.emit("resetWs");
-      //   });
       wsCall.handleUpgrade(request, socket, head, (ws) => {
         wsCall.emit("connection", ws, request);
       });
