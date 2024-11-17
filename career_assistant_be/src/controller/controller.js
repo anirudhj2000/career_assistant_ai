@@ -3,28 +3,12 @@ const { generateApiToken } = require("../utils/token");
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const { s3Client } = require("../config/awsConfig");
 const { scrapeJobs } = require("../utils/scraper");
 const { resume_dummy } = require("../utils/consts");
 const { generatePDF } = require("../helpers/generatePdf");
 const { wsEvents } = require("../utils/readyEvent");
-const {
-  GetCommand,
-  PutCommand,
-  DynamoDBDocumentClient,
-} = require("@aws-sdk/lib-dynamodb");
-const { v4: uuidv4 } = require("uuid");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { userTypes } = require("../utils/consts");
-
-const dynamoClient = new DynamoDBClient({
-  region: process.env.AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-  },
-});
-const dynamoDBDocumentClient = DynamoDBDocumentClient.from(dynamoClient);
+const { createUser, getUserData } = require("./user.controller");
 
 exports.handleIncomingCall = (req, res) => {
   console.log("Incoming call from:", req.query.From, req.headers.host);
@@ -45,25 +29,11 @@ exports.initializeUser = async (req, res) => {
     let type;
 
     if (newUser) {
-      // Create a new user in the database
-      const obj = {
-        id: uuidv4(),
-        type: userTypes.NEW_USER,
-        name: "",
-        email: "",
-        phone: "",
-        role: "",
-        resume: "",
-      };
-      const params = {
-        TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
-        Item: obj,
-      };
-      await dynamoDBDocumentClient.send(new PutCommand(params));
-      userId = obj.id;
-      type = userTypes.NEW_USER;
+      const response = await createUser();
+      userId = response.id;
+      type = response.type;
     } else {
-      const response = await this.getUserData(id);
+      const response = await getUserData(id);
       userId = response.id;
       type = response.type;
     }
@@ -95,16 +65,4 @@ exports.generateResumePdf = async (req, res) => {
     console.log(err);
     res.status(500).send(err);
   }
-};
-
-exports.getUserData = async (userId) => {
-  const command = new GetCommand({
-    TableName: process.env.AWS_DYNAMODB_TABLE_NAME,
-    Key: {
-      id: userId,
-    },
-  });
-
-  const response = await dynamoDBDocumentClient.send(command);
-  return response.Item;
 };
