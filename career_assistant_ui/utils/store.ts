@@ -6,6 +6,8 @@ interface Store {
   setShowJobsModal: (showJobsModal: showJobsInterface) => void;
   sidebar: MobileSidebarInterface;
   setShow: (sidebar: MobileSidebarInterface) => void;
+  showMenu: MobileSidebarInterface;
+  setShowMenu: (showMenu: MobileSidebarInterface) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -20,4 +22,9 @@ export const useStore = create<Store>((set) => ({
     id: "",
   },
   setShow: (sidebar) => set((state) => ({ ...state, sidebar })),
+  showMenu: {
+    show: false,
+    id: "",
+  },
+  setShowMenu: (showMenu) => set((state) => ({ ...state, showMenu })),
 }));
