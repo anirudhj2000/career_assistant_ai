@@ -53,19 +53,24 @@ exports.initializeUser = async (req, res) => {
 exports.getJobs = async (req, res) => {
   let { id } = req.params;
 
-  userData = await getUserData(id);
-  if (!userData) {
-    res.status(404).send("User not found");
+  try {
+    userData = await getUserData(id);
+    if (!userData) {
+      return res.status(404).send("User not found");
+    }
+
+    role = userData.role;
+
+    if (!role) {
+      role = await this.generateUserRoleFromResume(userData.resume);
+    }
+
+    const jobs = await scrapeJobs(role);
+    res.status(200).send(jobs);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
   }
-
-  role = userData.role;
-
-  if (!role) {
-    role = await this.generateUserRoleFromResume(userData.resume);
-  }
-
-  const jobs = await scrapeJobs(role);
-  res.status(200).send(jobs);
 };
 
 exports.getTranscriptData = async (req, res) => {
