@@ -25,8 +25,8 @@ exports.getCurrentConversationState = async (transcript) => {
         - Additional Information
       4. Resume Confirmation
         - Verify Points Breifly
-        - Verify User Email Address
-      5. Ask User if User wants to get a mail for the resume and tail confirmation ,  this for the email_id_confirmation stage , very important
+        - Verify User Email Address for the stage email_id_confirmation
+      5. Ask User if User wants to get a mail for the resume and tail confirmation ,  this for the send_user_email stage , very important
       6. Job Search Activation
       7. Handling Existing Users
         - Update Resume
@@ -69,9 +69,11 @@ exports.getCurrentConversationState = async (transcript) => {
         - resume_building
         - resume_confirmation
         - email_id_confirmation
+        - send_user_email 
         - job_search_activation
         - job_search_execution
 
+        send_user_email should be triggered only once , when assistant asks user that whether he wants a mail and user confirms it , then the stage should be send_user_email
 
     you are to return only a json object containing fields stage , sub_stage if applicatble and description of the stage and nothing else`;
 

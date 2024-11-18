@@ -2,7 +2,6 @@ const {
   getCurrentConversationState,
   generateResumeObject,
 } = require("./manageConversation");
-const { generateResumePdf } = require("../controller/controller");
 const { generatePDF } = require("./generatePdf");
 const { sendEmail } = require("../utils/sendEmail");
 const {
@@ -10,6 +9,7 @@ const {
   getUserData,
 } = require("../controller/user.controller");
 const { isWsCallReady } = require("../utils/readyEvent");
+const { userTypes } = require("../utils/consts");
 
 const actions = [
   "initial_conversation",
@@ -17,6 +17,7 @@ const actions = [
   "resume_building",
   "resume_confirmation",
   "email_id_confirmation",
+  "send_user_email",
   "job_search_activation",
   "job_search_execution",
 ];
@@ -34,14 +35,14 @@ exports.manageActions = async (transcript) => {
   );
 
   if (actions.includes(stage)) {
-    if (stage == "email_id_confirmation") {
+    if (stage == "send_user_email") {
       try {
         const userdata = await generateResumeObject(transcript);
         const resume = userdata.resume;
         if (resume.personalDetails.email) {
           const pdf = await generatePDF(resume);
           console.log("PDF: ", pdf);
-          await sendEmail(resume.resume.personalDetails.email, pdf);
+          await sendEmail(resume.personalDetails.email, pdf);
 
           getUserData(isWsCallReady.user).then((user) => {
             let userData = { ...user, type: userTypes.EXISTING_USER };
@@ -60,10 +61,10 @@ exports.manageActions = async (transcript) => {
           action: "send_email",
         };
       } catch (error) {
-        console.error("Error during email_id_confirmation stage:", error);
+        console.error("Error during send_user_email stage:", error);
 
         return {
-          stage: "email_id_confirmation",
+          stage: "send_user_email",
           description:
             "An error occurred during the email confirmation process.",
           error: error.message,
