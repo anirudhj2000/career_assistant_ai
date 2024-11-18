@@ -8,13 +8,19 @@ const openai = new OpenAI();
 exports.generateJobsListings = async () => {
   let response = await getUserData(isWsCallReady.user);
   let role = response.role;
-  if (!role) {
-    role = await this.generateUserRoleFromResume(response.resume);
-  }
 
-  let jobs = await scrapeJobs(role);
-  let firstThreeJobs = jobs.slice(0, 3);
-  return firstThreeJobs;
+  try {
+    if (!role) {
+      role = await this.generateUserRoleFromResume(response.resume);
+    }
+
+    let jobs = await scrapeJobs(role);
+    let firstThreeJobs = jobs.slice(0, 3);
+    return firstThreeJobs;
+  } catch (error) {
+    console.error("Error generating job listings:", error);
+    return [];
+  }
 
   // let summary = await generateJobSummary(jobs);
 };
