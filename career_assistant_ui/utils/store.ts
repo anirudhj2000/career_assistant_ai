@@ -8,6 +8,10 @@ interface Store {
   setShow: (sidebar: MobileSidebarInterface) => void;
   showMenu: MobileSidebarInterface;
   setShowMenu: (showMenu: MobileSidebarInterface) => void;
+  viewTranscript: showJobsInterface;
+  setViewTranscript: (viewTranscript: showJobsInterface) => void;
+  viewActiveLog: showJobsInterface;
+  setViewActiveLog: (viewActiveLog: showJobsInterface) => void;
 }
 
 export const useStore = create<Store>((set) => ({
@@ -27,4 +31,16 @@ export const useStore = create<Store>((set) => ({
     id: "",
   },
   setShowMenu: (showMenu) => set((state) => ({ ...state, showMenu })),
+  viewTranscript: {
+    show: false,
+    message: "",
+  },
+  setViewTranscript: (viewTranscript) =>
+    set((state) => ({ ...state, viewTranscript })),
+  viewActiveLog: {
+    show: false,
+    message: "",
+  },
+  setViewActiveLog: (viewActiveLog) =>
+    set((state) => ({ ...state, viewActiveLog })),
 }));

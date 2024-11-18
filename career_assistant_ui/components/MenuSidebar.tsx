@@ -15,7 +15,7 @@ import Spinner from "./Spinnner";
 export default function MenuSidebar() {
     const [loading, setLoading] = useState(true);
     const [show, setter] = useState(false);
-    const { showMenu, setShowMenu } = useStore();
+    const { showMenu, setShowMenu, setViewTranscript } = useStore();
     const [transcripts, setTranscripts] = useState([]);
     const [jobs, setJobs] = useState([]);
 
@@ -133,7 +133,16 @@ export default function MenuSidebar() {
                                                 transcripts.map((transcript: any, index) => (
                                                     <div key={index} className="flex flex-col w-full border-[1px] border-[#c7c7c7] rounded-lg p-4 mb-4">
                                                         <p className="text-black text-sm font-semibold">Call Transcript {transcript.id}</p>
-                                                        <a className=" text-sm underline">View Transcript</a>
+                                                        <a onClick={() => {
+                                                            setViewTranscript({
+                                                                show: true,
+                                                                message: transcript.transcript
+                                                            });
+                                                            setShowMenu({
+                                                                show: false,
+                                                            });
+                                                            setter((oldVal) => !oldVal);
+                                                        }} className=" cursor-pointer text-sm underline">View Transcript</a>
                                                     </div>
                                                 ))
                                             }
