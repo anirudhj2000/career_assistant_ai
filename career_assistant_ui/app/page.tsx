@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Device } from '@twilio/voice-sdk';
 import axios from 'axios';
 import { useStore } from "@/utils/store";
-import { jobsDummy } from '@/utils/consts';
+// import { jobsDummy } from '@/utils/consts';
 
 // Define Codec Preferences
 enum Codec {
@@ -91,8 +91,8 @@ export default function Home() {
       const data = JSON.parse(event.data);
 
       if (data.message.stage == 'job_showcase') {
-        // setShowJobsModal({ show: true, message: data.message.jobs });
-        setShowJobsModal({ show: true, message: JSON.stringify(jobsDummy) });
+        setShowJobsModal({ show: true, message: data.message.jobs });
+        // setShowJobsModal({ show: true, message: JSON.stringify(jobsDummy) });
       }
 
       setWebsocketMessage((prev) => [data.message, ...prev]);

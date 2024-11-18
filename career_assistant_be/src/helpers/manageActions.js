@@ -36,12 +36,12 @@ exports.manageActions = async (transcript) => {
   if (actions.includes(stage)) {
     if (stage == "email_id_confirmation") {
       try {
-        const resume = await generateResumeObject(transcript);
-
+        const userdata = await generateResumeObject(transcript);
+        const resume = userdata.resume;
         if (resume.personalDetails.email) {
           const pdf = await generatePDF(resume);
           console.log("PDF: ", pdf);
-          await sendEmail(resume.personalDetails.email, pdf);
+          await sendEmail(resume.resume.personalDetails.email, pdf);
 
           getUserData(isWsCallReady.user).then((user) => {
             let userData = { ...user, type: userTypes.EXISTING_USER };
