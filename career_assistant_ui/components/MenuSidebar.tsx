@@ -128,7 +128,7 @@ export default function MenuSidebar() {
                             <AccordionContent>
                                 {
                                     transcripts.length > 0 ? (
-                                        <div className="flex flex-col w-full">
+                                        <div className="flex flex-col max-h-[50vh] overflow-y-scroll w-full">
                                             {
                                                 transcripts.map((transcript: any, index) => (
                                                     <div key={index} className="flex flex-col w-full border-[1px] border-[#c7c7c7] rounded-lg p-4 mb-4">
