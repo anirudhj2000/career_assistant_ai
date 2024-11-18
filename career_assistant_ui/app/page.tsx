@@ -184,6 +184,8 @@ export default function Home() {
         call.
       </p>
 
+      <p className="text-black font-bold text-center w-9/12 mt-4 ">{'Note : Please wait for 5-10 secs after the initial message from twilio about the free account (it is not an error , I am using an free account) for the assistant to start speaking'}</p>
+
       <div className="flex flex-col items-center bg-gray-100 p-8 mt-[2.5vh] rounded-xl w-10/12 lg:w-4/12 lg:mt-[5vh] shadow-lg">
         {loading ? (
           <p className="text-gray-700 mb-4">Loading...</p>
