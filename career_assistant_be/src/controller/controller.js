@@ -51,14 +51,27 @@ exports.initializeUser = async (req, res) => {
 };
 
 exports.getJobs = async (req, res) => {
-  let type = req.query.type;
-  const jobs = await scrapeJobs(type);
+  let { id } = req.params;
+
+  userData = await getUserData(id);
+  if (!userData) {
+    res.status(404).send("User not found");
+  }
+
+  role = userData.role;
+
+  if (!role) {
+    role = await this.generateUserRoleFromResume(userData.resume);
+  }
+
+  const jobs = await scrapeJobs(role);
   res.status(200).send(jobs);
 };
 
 exports.getTranscriptData = async (req, res) => {
   try {
     const { id } = req.params;
+
     const transcript = await getUserTranscripts(id);
     res.status(200).send(transcript);
   } catch (err) {
