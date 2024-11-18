@@ -6,18 +6,22 @@ import { FileCode2, Github, Menu } from 'lucide-react'
 
 const Navbar = () => {
 
-    const { sidebar, setShow } = useStore()
+    const { sidebar, setShow, showMenu, setShowMenu } = useStore()
 
     return (
-        <div className='fixed top-0 w-full bg-white py-2 px-4 lg:px-8 flex flex-row justify-between items-center'>
-            <div className='hidden lg:flex flex-row justify-between w-1/3'>
-                <button className='cursor-pointer text-black px-4 py-2 rounded-md  bg-gray-300 hover:bg-gray-400'>
+        <div className='fixed top-0 w-full bg-white py-2 px-4 lg:px-8 flex flex-row justify-between items-center border-b-[1px] border-[#c7c7c7]/80 shadow-sm'>
+            <div className='flex flex-row justify-between  w-1/4 lg:w-1/3'>
+                <button onClick={() => {
+                    setShowMenu({
+                        ...showMenu, show: true
+                    })
+                }} className='cursor-pointer text-black px-2 lg:px-4 py-2 rounded-md  bg-gray-300 hover:bg-gray-400'>
                     Menu
                 </button>
             </div>
 
-            <div className='flex flex-row justify-center items-center'>
-                <h1 className='text-2xl font-bold text-black '>AI Career Assistant</h1>
+            <div className='flex flex-row justify-center items-center w-1/2 lg:w-1/3'>
+                <h1 className=' text-xl lg:text-2xl font-bold text-center text-black '>AI Career Assistant</h1>
             </ div>
 
             <div className='hidden lg:flex flex-row justify-end gap-x-4 w-1/3'>
@@ -35,7 +39,7 @@ const Navbar = () => {
                 </button>
 
             </div>
-            <div className=' flex lg:hidden  flex-row justify-end w-1/3'>
+            <div className=' flex lg:hidden  flex-row justify-end w-1/4 lg:w-1/3'>
                 <button onClick={() => {
                     setShow({
                         ...sidebar, show: true
