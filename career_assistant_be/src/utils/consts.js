@@ -23,7 +23,7 @@ exports.SYSTEM_MESSAGE_NEW_USER = `
     - Certifications and Awards
     - Additional Information
   3. Resume Confirmation 
-  4. Ask User if User wants to get a mail for the resume
+  4. Ask User if they wants to get a mail for the resume this is the event associated send_user_email stage
   5. Job Search Activation
   6. Session Termination
 
@@ -58,8 +58,9 @@ exports.SYSTEM_MESSAGE_EXISTING_USER = `
   2. Handling Existing Users
     - Update Resume
     - Search for Jobs
-  3. Provide Assistance based on User's Selection
-  4. Session Termination
+  3. if user says they wants to get a mail for the resume this is the event associated send_user_email stage
+  4. Provide Assistance based on User's Selection
+  5. Session Termination
 
 
   Guidelines:
@@ -93,7 +94,7 @@ exports.SYSTEM_MESSAGE_EXISTING_USER_NO_RESUME = `
     - Additional Information
 
   3. Resume Confirmation 
-  4. Ask User if User wants to get a mail for the resume
+  4. Ask User if they wants to get a mail for the resume this is the event associated send_user_email stage
   5. Job Search Activation
   6. Session
   7. Termination
