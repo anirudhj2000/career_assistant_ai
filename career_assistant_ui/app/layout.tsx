@@ -4,6 +4,7 @@ import ShowJobsModal from "@/components/showJobsModal";
 import Sidebar from "@/components/MobileSidebar";
 import Navbar from "@/components/Navbar";
 import MenuSidebar from "@/components/MenuSidebar";
+import ViewTranscript from "@/components/viewTranscriptModal";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -25,6 +26,7 @@ export default function RootLayout({
         <ShowJobsModal />
         <Sidebar />
         <MenuSidebar />
+        <ViewTranscript />
       </body>
     </html>
   );

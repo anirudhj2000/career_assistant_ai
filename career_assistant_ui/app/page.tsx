@@ -1,45 +1,44 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Device } from '@twilio/voice-sdk';
-import axios from 'axios';
+import { useState, useEffect, useRef } from "react";
+import { Device } from "@twilio/voice-sdk";
+import axios from "axios";
 import { useStore } from "@/utils/store";
+import { ChartSpline } from "lucide-react";
+import ViewActiveLogs from "@/components/viewActiveLogs";
 // import { jobsDummy } from '@/utils/consts';
 
 // Define Codec Preferences
 enum Codec {
   Opus = "opus",
-  PCMU = "pcmu"
+  PCMU = "pcmu",
 }
-
 
 // LiveAudioVisualizer
 // Use the getUserMedia API to capture audio from the user's microphone
 
-
 export default function Home() {
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState("");
   const [callInProgress, setCallInProgress] = useState(false);
   const deviceRef = useRef<Device | null>(null);
   const callRef = useRef<any>(null);
-  const { setShowJobsModal } = useStore();
+  const { setShowJobsModal, setViewActiveLog, viewActiveLog } = useStore();
   const [websocketMessage, setWebsocketMessage] = useState<Array<any>>([]);
   const ws = useRef<WebSocket | null>(null);
-
 
   const generateToken = async (newUser: boolean, id?: string) => {
     try {
       let obj: any = {
-        identity: 'user',
-        newUser: newUser
-      }
+        identity: "user",
+        newUser: newUser,
+      };
 
       if (!newUser) {
         obj = {
           id: id,
-          ...obj
-        }
+          ...obj,
+        };
       }
 
       const response = await axios.post(
@@ -47,64 +46,61 @@ export default function Home() {
         obj,
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           withCredentials: true,
         }
       );
 
       setToken(response.data.token);
-      localStorage.setItem('userdata', JSON.stringify(response.data));
+      localStorage.setItem("userdata", JSON.stringify(response.data));
       setLoading(false);
     } catch (err) {
       console.error("Error fetching token:", err);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    const data = localStorage.getItem('userdata');
+    const data = localStorage.getItem("userdata");
     if (!data) {
-      generateToken(true)
-    }
-    else {
+      generateToken(true);
+    } else {
       const userdata = JSON.parse(data);
       if (userdata.token) {
-        generateToken(false, userdata.id)
-      }
-      else {
+        generateToken(false, userdata.id);
+      } else {
         setLoading(false);
       }
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     ws.current = new WebSocket(`wss://${process.env.NEXT_PUBLIC_HOST_URL}/ui`);
 
     ws.current.onopen = () => {
-      console.log('WebSocket connection established');
+      console.log("WebSocket connection established");
     };
 
     ws.current.onmessage = (event) => {
-      console.log('Received message from server:',);
+      console.log("Received message from server:");
       const data = JSON.parse(event.data);
 
-      if (data.message.stage == 'job_showcase') {
+      if (data.message.stage == "job_showcase") {
         setShowJobsModal({ show: true, message: data.message.jobs });
         // setShowJobsModal({ show: true, message: JSON.stringify(jobsDummy) });
       }
 
       setWebsocketMessage((prev) => [data.message, ...prev]);
-
     };
 
     ws.current.onclose = () => {
-      console.log('WebSocket connection closed');
+      console.log("WebSocket connection closed");
     };
 
     ws.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error("WebSocket error:", error);
     };
 
     // Cleanup on component unmount
@@ -125,7 +121,7 @@ export default function Home() {
 
       deviceRef.current = device;
     }
-  }, [token])
+  }, [token]);
 
   // Start Call Function
   const startCall = async () => {
@@ -139,7 +135,7 @@ export default function Home() {
     setCallInProgress(true);
 
     const params = {
-      To: 'voice_assistant', // Identifier for the call
+      To: "voice_assistant", // Identifier for the call
     };
 
     try {
@@ -148,22 +144,21 @@ export default function Home() {
       });
       callRef.current = call;
 
-      (await call).on('accept', () => {
-        console.log('Call accepted');
+      (await call).on("accept", () => {
+        console.log("Call accepted");
       });
 
-      (await call).on('disconnect', () => {
-        console.log('Call disconnected');
+      (await call).on("disconnect", () => {
+        console.log("Call disconnected");
         setCallInProgress(false);
         callRef.current = null;
       });
 
-      (await call).on('error', (error: any) => {
-        console.error('Call Error:', error);
+      (await call).on("error", (error: any) => {
+        console.error("Call Error:", error);
         setCallInProgress(false);
         callRef.current = null;
       });
-
     } catch (error) {
       console.error("Error initiating call:", error);
       setCallInProgress(false);
@@ -177,23 +172,27 @@ export default function Home() {
       device.disconnectAll();
       setCallInProgress(false);
       callRef.current = null;
-      console.log('All calls disconnected');
+      console.log("All calls disconnected");
     }
   };
 
   return (
-    <div className='w-screen h-screen flex flex-col items-center justify-center bg-white/85'>
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-white/85">
+      <h1 className="text-4xl font-bold text-black ">AI Career Assistant</h1>
+      <p className="text-black text-center w-9/12 mt-4 ">
+        Welcome to the AI Career Assistant. Click the button below to start a
+        call.
+      </p>
 
-      <h1 className='text-4xl font-bold text-black '>AI Career Assistant</h1>
-      <p className='text-black text-center w-9/12 mt-4 '>Welcome to the AI Career Assistant. Click the button below to start a call.</p>
-
-      <div className='flex flex-col items-center bg-gray-100 p-8 mt-[2.5vh] rounded-xl w-10/12 lg:w-4/12 lg:mt-[5vh] shadow-lg'>
+      <div className="flex flex-col items-center bg-gray-100 p-8 mt-[2.5vh] rounded-xl w-10/12 lg:w-4/12 lg:mt-[5vh] shadow-lg">
         {loading ? (
-          <p className='text-gray-700 mb-4'>Loading...</p>
+          <p className="text-gray-700 mb-4">Loading...</p>
         ) : (
           <>
             <button
-              className={`cursor-pointer text-white px-4 py-2 rounded-xl mb-2 ${callInProgress ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+              className={`cursor-pointer w-1/2 text-white px-4 py-2 rounded-xl mb-2 ${callInProgress
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
                 }`}
               onClick={startCall}
               disabled={callInProgress || !token}
@@ -203,41 +202,34 @@ export default function Home() {
 
             {callInProgress && (
               <button
-                className='cursor-pointer text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl mb-2'
+                className="cursor-pointer w-1/2 text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl mb-2"
                 onClick={endCall}
               >
                 Disconnect
               </button>
             )}
 
-            <p className='text-black mb-4'>
-              {callInProgress ? 'Call in Progress' : 'No Call'}
+            <p className="text-black mb-4">
+              {callInProgress ? "Call in Progress" : "No Call"}
             </p>
 
-            {token && (
-              <p className='text-green-500 mt-2'>Ready</p>
-            )}
+            {token && <p className="text-green-500 mt-2">Ready</p>}
+
+            {callInProgress ? (
+              <button onClick={() => {
+                setViewActiveLog({ ...viewActiveLog, show: true });
+              }}
+
+                className="flex flex-row mt-4 gap-x-2 bg-black shadow-md w-1/3 justify-center py-1 rounded-md items-center">
+                <ChartSpline size={14} className=" text-base text-white" />
+                <p className="text-sm text-white">View Logs</p>
+              </button>
+            ) : null}
           </>
         )}
       </div>
 
-      {
-        websocketMessage.length > 0 ?
-          <div className='flex flex-col items-center bg-gray-100 p-4 max-h-[40vh] overflow-y-auto rounded-xl w-8/12 shadow-lg mt-[5vh]'>
-            <h2 className='text-xl text-black font-bold'>Websocket Messages</h2>
-            {websocketMessage.map((message: any, index) => (
-              <div key={index} className='flex flex-col items-start gap-x-4 p-2 w-full border-[1px] rounded-lg mb-4'>
-                <div className=' w-full flex flex-row justify-between items-center'>
-                  <p className='text-black'>{message.stage}</p>
-                  <p className='text-black max-w-1/2'>{message.sub_stage}</p>
-                </div>
-                <div className=' w-full flex flex-row justify-between mt-1 items-center'>
-                  <p className='text-black text-sm'>{message.description}</p>
-                </div>
-              </div>
-            ))}
-          </div> : null
-      }
+      <ViewActiveLogs logs={websocketMessage} />
     </div>
   );
 }
