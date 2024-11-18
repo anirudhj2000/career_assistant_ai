@@ -3,6 +3,7 @@ import "./globals.css";
 import ShowJobsModal from "@/components/showJobsModal";
 import Sidebar from "@/components/MobileSidebar";
 import Navbar from "@/components/Navbar";
+import MenuSidebar from "@/components/MenuSidebar";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,6 +24,7 @@ export default function RootLayout({
         {children}
         <ShowJobsModal />
         <Sidebar />
+        <MenuSidebar />
       </body>
     </html>
   );
