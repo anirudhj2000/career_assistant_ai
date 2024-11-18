@@ -17,6 +17,7 @@ const {
   generateJobsListings,
   generateJobSummary,
 } = require("../helpers/manageJobsListings");
+const { createUserTranscript } = require("./transcript.controller");
 
 const VOICE = "alloy";
 const PORT = process.env.PORT || 5050;
@@ -234,22 +235,15 @@ module.exports = (wss, ws2Clients) => {
           response.type ===
           "conversation.item.input_audio_transcription.completed"
         ) {
-          // console.log("Transcription complete", response.transcript.trim());
-
-          session.transcript += "[user]:" + response.transcript.trim();
+          session.transcript += "[user]:" + response.transcript.trim() + "\n";
         }
 
         if (response.type === "response.done") {
-          // console.log(
-          //   "Response done",
-          //   response.response.output[0]?.content?.find((c) => c.transcript)
-          //     ?.transcript
-          // );
-
           session.transcript +=
             "[assistant]:" +
             response.response.output[0]?.content?.find((c) => c.transcript)
-              ?.transcript;
+              ?.transcript +
+            "\n";
 
           console.log("Session Transcript", session.transcript);
 
@@ -374,6 +368,11 @@ module.exports = (wss, ws2Clients) => {
     // Handle connection close
     connection.on("close", () => {
       if (openAiWs.readyState === WebSocket.OPEN) openAiWs.close();
+      createUserTranscript(
+        isWsCallReady.user,
+        session.transcript,
+        session.sessionId
+      );
       console.log("Client disconnected.");
     });
 
