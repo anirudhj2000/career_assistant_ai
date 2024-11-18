@@ -5,6 +5,5 @@ const controller = require("./controller/controller");
 router.post("/auth", controller.initializeUser);
 router.get("/jobs", controller.getJobs);
 router.get("/incoming-call", controller.handleIncomingCall);
-router.post("/generate-pdf", controller.generateResumePdf);
-
+router.get("/transcripts/:id", controller.getTranscriptData);
 module.exports = router;

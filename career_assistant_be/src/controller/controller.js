@@ -9,6 +9,7 @@ const { generatePDF } = require("../helpers/generatePdf");
 const { wsEvents } = require("../utils/readyEvent");
 const { userTypes } = require("../utils/consts");
 const { createUser, getUserData } = require("./user.controller");
+const { getUserTranscripts } = require("./transcript.controller");
 
 exports.handleIncomingCall = (req, res) => {
   console.log("Incoming call from:", req.query.From, req.headers.host);
@@ -51,16 +52,15 @@ exports.initializeUser = async (req, res) => {
 
 exports.getJobs = async (req, res) => {
   let type = req.query.type;
-
   const jobs = await scrapeJobs(type);
   res.status(200).send(jobs);
 };
 
-exports.generateResumePdf = async (req, res) => {
+exports.getTranscriptData = async (req, res) => {
   try {
-    const { resume } = req.body;
-    const pdf = await generatePDF(resume_dummy);
-    res.status(200).send(pdf);
+    const { id } = req.params;
+    const transcript = await getUserTranscripts(id);
+    res.status(200).send(transcript);
   } catch (err) {
     console.log(err);
     res.status(500).send(err);
